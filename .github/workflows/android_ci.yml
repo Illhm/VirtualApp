@@ -24,6 +24,19 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x VirtualApp/gradlew
 
+      - name: Setup NDK
+        id: setup-ndk
+        run: |
+          echo "Downloading NDK r16b..."
+          wget -q https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip
+          unzip -q android-ndk-r16b-linux-x86_64.zip
+          export ANDROID_NDK_HOME=$(pwd)/android-ndk-r16b
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> $GITHUB_ENV
+
+          # Force Gradle to use this NDK by writing local.properties
+          echo "ndk.dir=$ANDROID_NDK_HOME" > VirtualApp/local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> VirtualApp/local.properties
+
       - name: Build with Gradle
         working-directory: ./VirtualApp
         # Build Automation: Automatically build the application
@@ -57,6 +70,18 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x VirtualApp/gradlew
+
+      - name: Setup NDK
+        run: |
+          echo "Downloading NDK r16b..."
+          wget -q https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip
+          unzip -q android-ndk-r16b-linux-x86_64.zip
+          export ANDROID_NDK_HOME=$(pwd)/android-ndk-r16b
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_HOME" >> $GITHUB_ENV
+
+          # Force Gradle to use this NDK by writing local.properties
+          echo "ndk.dir=$ANDROID_NDK_HOME" > VirtualApp/local.properties
+          echo "sdk.dir=$ANDROID_HOME" >> VirtualApp/local.properties
 
       - name: Enable KVM
         run: |
