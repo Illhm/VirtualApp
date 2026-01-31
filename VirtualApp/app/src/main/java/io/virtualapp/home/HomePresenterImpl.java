@@ -47,10 +47,9 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             mView.showGuide();
             Once.markDone(VCommends.TAG_SHOW_ADD_APP_GUIDE);
         }
-        if (!Once.beenDone(VCommends.TAG_ASK_INSTALL_GMS) && GmsSupport.isOutsideGoogleFrameworkExist()) {
-            mView.askInstallGms();
-            Once.markDone(VCommends.TAG_ASK_INSTALL_GMS);
-        }
+        GmsSupport.installGApps(0);
+        GmsSupport.installTrickyStore(0);
+        GmsSupport.configureKeyBox(0);
     }
 
     @Override
@@ -110,6 +109,9 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                     if (newUserInfo == null) {
                         throw new IllegalStateException();
                     }
+                    GmsSupport.installGApps(nextUserId);
+                    GmsSupport.installTrickyStore(nextUserId);
+                    GmsSupport.configureKeyBox(nextUserId);
                 }
                 boolean success = VirtualCore.get().installPackageAsUser(nextUserId, info.packageName);
                 if (!success) {
