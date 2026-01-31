@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import io.virtualapp.VCommends;
 import io.virtualapp.abs.ui.VUiKit;
+import io.virtualapp.delegate.TrickyStoreInstaller;
 import io.virtualapp.home.models.AppData;
 import io.virtualapp.home.models.AppInfoLite;
 import io.virtualapp.home.models.MultiplePackageAppData;
@@ -47,9 +48,13 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
             mView.showGuide();
             Once.markDone(VCommends.TAG_SHOW_ADD_APP_GUIDE);
         }
-        if (!Once.beenDone(VCommends.TAG_ASK_INSTALL_GMS) && GmsSupport.isOutsideGoogleFrameworkExist()) {
-            mView.askInstallGms();
-            Once.markDone(VCommends.TAG_ASK_INSTALL_GMS);
+        if (!Once.beenDone(VCommends.TAG_ASK_INSTALL_GMS)) {
+            VUiKit.defer().when(() -> {
+                GmsSupport.installGApps(0);
+                TrickyStoreInstaller.install(mActivity, 0);
+            }).done((res) -> {
+                Once.markDone(VCommends.TAG_ASK_INSTALL_GMS);
+            });
         }
     }
 
@@ -110,6 +115,8 @@ class HomePresenterImpl implements HomeContract.HomePresenter {
                     if (newUserInfo == null) {
                         throw new IllegalStateException();
                     }
+                    GmsSupport.installGApps(nextUserId);
+                    TrickyStoreInstaller.install(mActivity, nextUserId);
                 }
                 boolean success = VirtualCore.get().installPackageAsUser(nextUserId, info.packageName);
                 if (!success) {

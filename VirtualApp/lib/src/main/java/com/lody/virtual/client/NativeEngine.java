@@ -37,6 +37,11 @@ public class NativeEngine {
         } catch (Throwable e) {
             VLog.e(TAG, VLog.getStackTraceString(e));
         }
+        try {
+            System.loadLibrary("tricky_store");
+        } catch (Throwable e) {
+            VLog.e(TAG, VLog.getStackTraceString(e));
+        }
     }
 
     static {
