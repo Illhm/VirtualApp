@@ -22,6 +22,17 @@ public class VDeviceInfo implements Parcelable {
     public String serial;
     public String gmsAdId;
 
+    public String product;
+    public String manufacturer;
+    public String brand;
+    public String model;
+    public String device;
+    public String bootloader;
+    public String hardware;
+    public String id;
+    public String display;
+    public String fingerprint;
+
     @Override
     public int describeContents() {
         return 0;
@@ -36,6 +47,17 @@ public class VDeviceInfo implements Parcelable {
         dest.writeString(this.iccId);
         dest.writeString(this.serial);
         dest.writeString(this.gmsAdId);
+
+        dest.writeString(this.product);
+        dest.writeString(this.manufacturer);
+        dest.writeString(this.brand);
+        dest.writeString(this.model);
+        dest.writeString(this.device);
+        dest.writeString(this.bootloader);
+        dest.writeString(this.hardware);
+        dest.writeString(this.id);
+        dest.writeString(this.display);
+        dest.writeString(this.fingerprint);
     }
 
     public VDeviceInfo() {}
@@ -48,6 +70,17 @@ public class VDeviceInfo implements Parcelable {
         this.iccId = in.readString();
         this.serial = in.readString();
         this.gmsAdId = in.readString();
+
+        this.product = in.readString();
+        this.manufacturer = in.readString();
+        this.brand = in.readString();
+        this.model = in.readString();
+        this.device = in.readString();
+        this.bootloader = in.readString();
+        this.hardware = in.readString();
+        this.id = in.readString();
+        this.display = in.readString();
+        this.fingerprint = in.readString();
     }
 
     public static final Parcelable.Creator<VDeviceInfo> CREATOR = new Parcelable.Creator<VDeviceInfo>() {

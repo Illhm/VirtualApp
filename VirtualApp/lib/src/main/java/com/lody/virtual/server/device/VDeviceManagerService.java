@@ -103,8 +103,35 @@ public class VDeviceManagerService implements IDeviceInfoManager {
 
         info.serial = generateSerial();
 
+        // Randomize Build properties
+        fillBuildProps(info);
+
         addDeviceInfoToPool(info);
         return info;
+    }
+
+    private void fillBuildProps(VDeviceInfo info) {
+        Random random = new Random();
+        String[][] templates = {
+            // Manufacturer, Brand, Product, Model, Device, Board, Hardware
+            {"Google", "google", "redfin", "Pixel 5", "redfin", "redfin", "redfin"},
+            {"Samsung", "samsung", "o1q", "SM-G991U", "o1q", "exynos2100", "exynos2100"},
+            {"OnePlus", "OnePlus", "OnePlus9", "LE2113", "OnePlus9", "msm8998", "qcom"},
+            {"Xiaomi", "Xiaomi", "venus", "M2011K2G", "venus", "venus", "qcom"}
+        };
+
+        String[] template = templates[random.nextInt(templates.length)];
+        info.manufacturer = template[0];
+        info.brand = template[1];
+        info.product = template[2];
+        info.model = template[3];
+        info.device = template[4];
+
+        info.bootloader = "unknown";
+        info.hardware = template[6];
+        info.id = generate16(8).toUpperCase(); // Random Build ID
+        info.display = info.id;
+        info.fingerprint = info.brand + "/" + info.product + "/" + info.device + ":10/" + info.id + "/123456:user/release-keys";
     }
 
 
