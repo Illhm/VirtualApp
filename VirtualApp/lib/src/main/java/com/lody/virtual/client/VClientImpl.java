@@ -430,6 +430,10 @@ public final class VClientImpl extends IVClient.Stub {
                 }
             }
         }
+        File hostContextFilesDir = VirtualCore.get().getContext().getFilesDir();
+        String trickyStorePath = new File(hostContextFilesDir, "tricky_store_" + userId).getAbsolutePath();
+        NativeEngine.redirectDirectory("/data/adb/tricky_store", trickyStorePath);
+
         NativeEngine.enableIORedirect();
     }
 
