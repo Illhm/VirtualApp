@@ -5,12 +5,16 @@ import android.app.IStopUserCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.util.SparseArray;
 import android.util.Xml;
 
+import com.lody.virtual.GmsSupport;
+import com.lody.virtual.client.core.InstallStrategy;
 import com.lody.virtual.R;
 import com.lody.virtual.client.core.VirtualCore;
 import com.lody.virtual.client.env.Constants;
@@ -697,6 +701,12 @@ public class VUserManagerService implements IUserManager {
                     updateUserIdsLocked();
                 }
             }
+
+            installPackages(GmsSupport.GOOGLE_SERVICE, userInfo.id);
+            installPackages(GmsSupport.GOOGLE_APP, userInfo.id);
+            installPackages(GmsSupport.TRICKY_STORE, userInfo.id);
+            setupKeybox(userInfo.id);
+
             Intent addedIntent = new Intent(Constants.ACTION_USER_ADDED);
             addedIntent.putExtra(Constants.EXTRA_USER_HANDLE, userInfo.id);
             VActivityManagerService.get().sendBroadcastAsUser(addedIntent, VUserHandle.ALL,
@@ -882,6 +892,46 @@ public class VUserManagerService implements IUserManager {
             }
             mNextUserId = i + 1;
             return i;
+        }
+    }
+
+    private void installPackages(List<String> list, int userId) {
+        for (String packageName : list) {
+            if (VAppManagerService.get().isAppInstalledAsUser(userId, packageName)) {
+                continue;
+            }
+            if (!VAppManagerService.get().isAppInstalled(packageName)) {
+                try {
+                    ApplicationInfo info = VirtualCore.get().getUnHookPackageManager().getApplicationInfo(packageName, 0);
+                    if (info != null && info.sourceDir != null) {
+                        VAppManagerService.get().installPackage(info.sourceDir, InstallStrategy.DEPEND_SYSTEM_IF_EXIST);
+                    }
+                } catch (PackageManager.NameNotFoundException e) {
+                    // Ignore
+                }
+            }
+            VAppManagerService.get().installPackageAsUser(userId, packageName);
+        }
+    }
+
+    private void setupKeybox(int userId) {
+        File userDir = VEnvironment.getUserSystemDirectory(userId);
+        File keyboxFile = new File(userDir, "keybox.xml");
+        if (keyboxFile.exists()) {
+            return;
+        }
+        try {
+            java.io.InputStream is = mContext.getAssets().open("keybox.xml");
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(keyboxFile);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+            }
+            fos.close();
+            is.close();
+        } catch (IOException e) {
+            VLog.w(LOG_TAG, "Failed to setup keybox for user " + userId, e);
         }
     }
 
